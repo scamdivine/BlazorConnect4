@@ -36,8 +36,7 @@ namespace BlazorConnect4.AIModels
 
     }
 
-
-
+     
     [Serializable]
     public class RandomAI : AI
     {
@@ -47,7 +46,7 @@ namespace BlazorConnect4.AIModels
         {
             generator = new Random();
         }
-
+        
         public override int SelectMove(Cell[,] grid)
         {
             return generator.Next(7);
@@ -59,6 +58,39 @@ namespace BlazorConnect4.AIModels
             // Eftersom generatorn inte var serialiserad.
             temp.generator = new Random();
             return temp;
+        }
+    }
+
+    [Serializable]
+    public class QAgent : AI
+    {
+        float WinningMove = 1.0F;
+        float LosingMove = -1.0F;
+        float InvalidMove = -0.1F;
+
+        float Memory = 0.0F;
+
+        public QAgent()
+        {
+
+        }
+
+        public static QAgent ConstructFromFile(string fileName)
+        {
+            QAgent temp = (QAgent)(AI.FromFile(fileName));
+            return temp;
+        }
+
+        public override int SelectMove(Cell[,] grid)
+        {
+            return 0;
+        }          
+ 
+        public bool isValid(int col, Cell[,] grid)
+        {
+            // Checks top row with input col to see if cell is Blank, which means a player can place there.
+            bool isValid = grid[col, 0].Color == CellColor.Blank;
+            return isValid;
         }
     }
 }

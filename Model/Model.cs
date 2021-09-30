@@ -20,7 +20,7 @@ namespace BlazorConnect4.Model
         {
             Color = color;
         }
-
+         
     }
 
     public class GameBoard
@@ -41,7 +41,7 @@ namespace BlazorConnect4.Model
             }
         }
 
-
+         
     }
 
 
@@ -89,15 +89,39 @@ namespace BlazorConnect4.Model
             }
             else if (playAgainst == "Q1")
             {
-                ai = new RandomAI();
+                if (File.Exists("Data/Q1.bin"))
+                {
+                    ai = QAgent.ConstructFromFile("Data/Q1.bin");
+                }
+                else
+                {
+                    ai = new QAgent();
+                    ai.ToFile("Data/Q1.bin");
+                }
             }
             else if (playAgainst == "Q2")
             {
-                ai = new RandomAI();
+                if (File.Exists("Data/Q2.bin"))
+                {
+                    ai = QAgent.ConstructFromFile("Data/Q2.bin");
+                }
+                else
+                {
+                    ai = new QAgent();
+                    ai.ToFile("Data/Q2.bin");
+                }
             }
             else if (playAgainst == "Q3")
             {
-                ai = new RandomAI();
+                if (File.Exists("Data/Q3.bin"))
+                {
+                    ai = QAgent.ConstructFromFile("Data/Q3.bin");
+                }
+                else
+                {
+                    ai = new QAgent();
+                    ai.ToFile("Data/Q3.bin");
+                }
             }
 
         }
