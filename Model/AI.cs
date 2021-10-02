@@ -2,6 +2,7 @@
 using System.IO;
 using BlazorConnect4.Model;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace BlazorConnect4.AIModels
 {
@@ -64,15 +65,21 @@ namespace BlazorConnect4.AIModels
     [Serializable]
     public class QAgent : AI
     {
+        private CellColor player;
+
         float WinningMove = 1.0F;
         float LosingMove = -1.0F;
         float InvalidMove = -0.1F;
 
         float Memory = 0.0F;
+        
+        int numberOfRuns = 1000;
 
-        public QAgent()
+        Dictionary<String, double[]> memoryDict = new Dictionary<String, double[]>();
+
+        public QAgent(CellColor player)
         {
-
+            this.player = player;
         }
 
         public static QAgent ConstructFromFile(string fileName)
@@ -83,14 +90,96 @@ namespace BlazorConnect4.AIModels
 
         public override int SelectMove(Cell[,] grid)
         {
-            return 0;
-        }          
- 
-        public bool isValid(int col, Cell[,] grid)
+            double epsilon = (float)Math.Pow(0.99985, numberOfRuns);
+
+            int move = epsilonCalculation(grid, epsilon);
+
+
+            return move;
+        }
+
+        public int epsilonCalculation(Cell[,] grid, double epsilon)
         {
-            // Checks top row with input col to see if cell is Blank, which means a player can place there.
-            bool isValid = grid[col, 0].Color == CellColor.Blank;
-            return isValid;
+            Random rand = new Random();
+            int currentState = -1;
+            if (rand.NextDouble() < epsilon)
+            {
+                currentState = rand.Next(7);
+                while (!GameEngine.IsValid(grid, currentState))
+                {
+                    currentState = rand.Next(7);
+                }
+                return currentState;
+            }
+            else
+            {
+                int col = 0;
+                double colValue = findInMemory(grid, col);
+                for (int i = 1; i < 7; i++)
+                {
+                    double nextColValue = findInMemory(grid, i);
+                    if (colValue < nextColValue)
+                    {
+                        col = i;
+                        colValue = nextColValue;
+                    }
+                }
+                return col;
+            }
+        }
+
+        public double findInMemory(Cell[,] grid, int col)
+        {
+            String gridKey = GameEngine.GetHashStringCode(grid);
+            Random rand = new Random();
+            if (!memoryDict.ContainsKey(gridKey))
+            {
+                double[] moves = { rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble() };
+                memoryDict.Add(gridKey, moves);
+                return moves[0];
+            }
+            return memoryDict[gridKey][col];
+        }
+
+        public void updateMemory(Cell[,] grid, int col, double reward)
+        {
+            String gridKey = GameEngine.GetHashStringCode(grid);
+            Random rand = new Random();
+            if (!memoryDict.ContainsKey(gridKey))
+            {
+                double[] moves = { rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble(), rand.NextDouble() };
+                memoryDict.Add(gridKey, moves);
+            }
+            memoryDict[gridKey][col] = reward;
+        }
+
+        public int getMove(Cell[,] grid, int col)
+        {
+            Random rand = new Random();
+
+            for(int epoch = 0; epoch < 100; epoch++)
+            {
+                int currentState = rand.Next(7);
+
+                while (true)
+                {
+                    if (GameEngine.IsValid(grid, col))
+                    {
+                        break;
+                    }
+                }
+            }
+
+
+            int move = 0;
+            float epsilon = (float)Math.Pow(0.99985, numberOfRuns);
+            int test = numberOfRuns == 1 ? 1 : 0;
+            if (test == 1)
+                move = rand.Next(7);
+            else
+                move = 0;
+
+            return move;
         }
     }
 }

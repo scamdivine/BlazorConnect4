@@ -95,7 +95,7 @@ namespace BlazorConnect4.Model
                 }
                 else
                 {
-                    ai = new QAgent();
+                    ai = new QAgent(Player);
                     ai.ToFile("Data/Q1.bin");
                 }
             }
@@ -107,7 +107,7 @@ namespace BlazorConnect4.Model
                 }
                 else
                 {
-                    ai = new QAgent();
+                    ai = new QAgent(Player);
                     ai.ToFile("Data/Q2.bin");
                 }
             }
@@ -119,7 +119,7 @@ namespace BlazorConnect4.Model
                 }
                 else
                 {
-                    ai = new QAgent();
+                    ai = new QAgent(Player);
                     ai.ToFile("Data/Q3.bin");
                 }
             }
@@ -132,6 +132,11 @@ namespace BlazorConnect4.Model
         private bool IsValid(int col)
         {
             return Board.Grid[col, 0].Color == CellColor.Blank;
+        }
+
+        public static bool IsValid(Cell[,] board, int col)
+        {
+            return board[col, 0].Color == CellColor.Blank;
         }
 
 
@@ -231,7 +236,88 @@ namespace BlazorConnect4.Model
             return win;
         }
 
+        public static bool IsWin(Cell[,] grid, CellColor player, int col, int row)
+        {
+            bool win = false;
+            int score = 0;
 
+
+            // Check down
+            if (row < 3)
+            {
+                for (int i = row; i <= row + 3; i++)
+                {
+                    if (grid[col, i].Color == player)
+                    {
+                        score++;
+                    }
+                }
+                win = score == 4;
+                score = 0;
+            }
+
+            // Check horizontal
+
+            int left = Math.Max(col - 3, 0);
+
+            for (int i = left; i <= col; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if (i + j <= 6 && grid[i + j, row].Color == player)
+                    {
+                        score++;
+                    }
+                }
+                win = win || score == 4;
+                score = 0;
+            }
+
+            // Check left down diagonal
+
+            int colpos;
+            int rowpos;
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    colpos = col - i + j;
+                    rowpos = row - i + j;
+                    if (0 <= colpos && colpos <= 6 &&
+                        0 <= rowpos && rowpos < 6 &&
+                        grid[colpos, rowpos].Color == player)
+                    {
+                        score++;
+                    }
+                }
+
+                win = win || score == 4;
+                score = 0;
+            }
+
+            // Check left up diagonal
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    colpos = col + i - j;
+                    rowpos = row - i + j;
+                    if (0 <= colpos && colpos <= 6 &&
+                        0 <= rowpos && rowpos < 6 &&
+                        grid[colpos, rowpos].Color == player)
+                    {
+                        score++;
+                    }
+                }
+
+                win = win || score == 4;
+                score = 0;
+            }
+
+            return win;
+        }
 
 
         public bool Play(int col)
@@ -292,6 +378,20 @@ namespace BlazorConnect4.Model
             }
 
             return false;
+        }
+
+        public static String GetHashStringCode(Cell[,] grid)
+        {
+            System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+            for(int col = 0; col < 7; col++)
+            {
+                for (int row = 0; col < 6; row++)
+                {
+                    stringBuilder.Append(grid[col, row].Color);
+                }
+            }
+
+            return stringBuilder.ToString();
         }
     }
 
