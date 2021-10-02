@@ -70,10 +70,8 @@ namespace BlazorConnect4.AIModels
         float WinningMove = 1.0F;
         float LosingMove = -1.0F;
         float InvalidMove = -0.1F;
-
-        float Memory = 0.0F;
         
-        int numberOfRuns = 1000;
+        int numberOfRuns = 0;
 
         Dictionary<String, double[]> memoryDict = new Dictionary<String, double[]>();
 
@@ -130,7 +128,7 @@ namespace BlazorConnect4.AIModels
 
         public double findInMemory(Cell[,] grid, int col)
         {
-            String gridKey = GameEngine.GetHashStringCode(grid);
+            String gridKey = GameBoard.GetHashStringCode(grid);
             Random rand = new Random();
             if (!memoryDict.ContainsKey(gridKey))
             {
@@ -143,7 +141,7 @@ namespace BlazorConnect4.AIModels
 
         public void updateMemory(Cell[,] grid, int col, double reward)
         {
-            String gridKey = GameEngine.GetHashStringCode(grid);
+            String gridKey = GameBoard.GetHashStringCode(grid);
             Random rand = new Random();
             if (!memoryDict.ContainsKey(gridKey))
             {
@@ -180,6 +178,30 @@ namespace BlazorConnect4.AIModels
                 move = 0;
 
             return move;
+        }
+
+        public void Trainer(int epochs, QAgent opponent)
+        {
+            TrainingGameEngine GameEngine = new TrainingGameEngine();
+
+
+            for (int i = 0; i < epochs; i++)
+            {
+                GameEngine.Reset();
+                Cell[,] grid = GameEngine.Board.Grid;
+                CellColor player = GameEngine.Player;
+
+                int colMove = SelectMove(grid);
+                while (true)
+                {
+                    if (GameEngine.IsWin(grid, player, colMove))
+                    {
+                        
+                    }
+                }
+
+                this.numberOfRuns++;
+            }
         }
     }
 }

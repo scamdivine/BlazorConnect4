@@ -40,8 +40,18 @@ namespace BlazorConnect4.Model
                 }
             }
         }
-
-         
+        public static String GetHashStringCode(Cell[,] grid)
+        {
+            System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+            for (int col = 0; col < 7; col++)
+            {
+                for (int row = 0; col < 6; row++)
+                {
+                    stringBuilder.Append(grid[col, row].Color);
+                }
+            }
+            return stringBuilder.ToString();
+        }
     }
 
 
@@ -379,21 +389,138 @@ namespace BlazorConnect4.Model
 
             return false;
         }
-
-        public static String GetHashStringCode(Cell[,] grid)
-        {
-            System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            for(int col = 0; col < 7; col++)
-            {
-                for (int row = 0; col < 6; row++)
-                {
-                    stringBuilder.Append(grid[col, row].Color);
-                }
-            }
-
-            return stringBuilder.ToString();
-        }
     }
 
+    public class TrainingGameEngine
+    {
+        public GameBoard Board { get; set; }
+        public CellColor Player { get; set; }
+
+        public TrainingGameEngine()
+        {
+            Board = new GameBoard();
+            Player = CellColor.Red;
+        }
+
+
+
+        // Reset the game and creats the opponent.
+        public void Reset()
+        {
+            Board = new GameBoard();
+            Player = CellColor.Red;
+        }
+
+        public static bool IsValid(Cell[,] board, int col)
+        {
+            return board[col, 0].Color == CellColor.Blank;
+        }
+
+
+        public bool IsDraw()
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                if (Board.Grid[i, 0].Color == CellColor.Blank)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool IsWin(Cell[,] grid, CellColor player, int col)
+        {
+            bool win = false;
+            int score = 0;
+
+            int row = 6;
+
+            while (true)
+            {
+                if (grid[col, row-1].Color == CellColor.Blank || !IsValid(grid, col))
+                {
+                    break;
+                }
+                row -= 1;
+            }
+
+            // Check down
+            if (row < 3)
+            {
+                for (int i = row; i <= row + 3; i++)
+                {
+                    if (grid[col, i].Color == player)
+                    {
+                        score++;
+                    }
+                }
+                win = score == 4;
+                score = 0;
+            }
+
+            // Check horizontal
+
+            int left = Math.Max(col - 3, 0);
+
+            for (int i = left; i <= col; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if (i + j <= 6 && grid[i + j, row].Color == player)
+                    {
+                        score++;
+                    }
+                }
+                win = win || score == 4;
+                score = 0;
+            }
+
+            // Check left down diagonal
+
+            int colpos;
+            int rowpos;
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    colpos = col - i + j;
+                    rowpos = row - i + j;
+                    if (0 <= colpos && colpos <= 6 &&
+                        0 <= rowpos && rowpos < 6 &&
+                        grid[colpos, rowpos].Color == player)
+                    {
+                        score++;
+                    }
+                }
+
+                win = win || score == 4;
+                score = 0;
+            }
+
+            // Check left up diagonal
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    colpos = col + i - j;
+                    rowpos = row - i + j;
+                    if (0 <= colpos && colpos <= 6 &&
+                        0 <= rowpos && rowpos < 6 &&
+                        grid[colpos, rowpos].Color == player)
+                    {
+                        score++;
+                    }
+                }
+
+                win = win || score == 4;
+                score = 0;
+            }
+
+            return win;
+        }
+    }
 
 }
