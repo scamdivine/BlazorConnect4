@@ -167,8 +167,6 @@ namespace BlazorConnect4.AIModels
                     }
                 }
             }
-
-
             int move = 0;
             float epsilon = (float)Math.Pow(0.99985, numberOfRuns);
             int test = numberOfRuns == 1 ? 1 : 0;
@@ -190,14 +188,43 @@ namespace BlazorConnect4.AIModels
                 GameEngine.Reset();
                 Cell[,] grid = GameEngine.Board.Grid;
                 CellColor player = GameEngine.Player;
-
+                CellColor opponentColor = opponent.player;
+                CellColor thisPlayer = CellColor.Red;
                 int colMove = SelectMove(grid);
                 while (true)
                 {
-                    if (GameEngine.IsWin(grid, player, colMove))
+                    if (GameEngine.IsValid(grid, colMove))
                     {
-                        
+                        updateMemory(grid, colMove, InvalidMove);
+                        SelectMove(grid);
+                        break;
                     }
+                    else
+                    {
+                        if (GameEngine.IsDraw())
+                        {
+                            break;
+                        }
+                        else if (GameEngine.IsWin(grid, player, colMove))
+                        {
+                            if (thisPlayer == player)
+                            {
+                                updateMemory(grid, colMove, WinningMove);
+                            }
+                            else if (thisPlayer == opponentColor)
+                            {
+                                updateMemory(grid, colMove, LosingMove);
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            thisPlayer = GameEngine.SwapPlayer(thisPlayer);
+                            GameEngine.PlayNext(thisPlayer);
+                        }
+                    }
+
+
                 }
 
                 this.numberOfRuns++;

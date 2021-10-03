@@ -10,7 +10,7 @@ namespace BlazorConnect4.Model
         Yellow,
         Blank
     }
-
+    
 
     public class Cell
     {
@@ -411,7 +411,7 @@ namespace BlazorConnect4.Model
             Player = CellColor.Red;
         }
 
-        public static bool IsValid(Cell[,] board, int col)
+        public bool IsValid(Cell[,] board, int col)
         {
             return board[col, 0].Color == CellColor.Blank;
         }
@@ -427,6 +427,32 @@ namespace BlazorConnect4.Model
                 }
             }
             return true;
+        }
+        public bool PlayNext()
+        {
+
+            if (Player == CellColor.Red)
+            {
+                Player = CellColor.Yellow;
+            }
+            else
+            {
+                Player = CellColor.Red;
+            }
+
+            if (ai != null && Player == CellColor.Yellow)
+            {
+                int move = ai.SelectMove(Board.Grid);
+
+                while (!IsValid(move))
+                {
+                    move = ai.SelectMove(Board.Grid);
+                }
+
+                return Play(move);
+            }
+
+            return false;
         }
 
         public bool IsWin(Cell[,] grid, CellColor player, int col)
