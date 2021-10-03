@@ -428,31 +428,31 @@ namespace BlazorConnect4.Model
             }
             return true;
         }
-        public bool PlayNext()
-        {
 
+        public CellColor SwapPlayer(CellColor player)
+        {
             if (Player == CellColor.Red)
             {
-                Player = CellColor.Yellow;
+                return CellColor.Yellow;
             }
             else
             {
-                Player = CellColor.Red;
+                return CellColor.Red;
             }
 
-            if (ai != null && Player == CellColor.Yellow)
+        }
+
+        public void Play(int col, CellColor player)
+        {
+            for (int i = 5; i >= 0; i--)
             {
-                int move = ai.SelectMove(Board.Grid);
-
-                while (!IsValid(move))
+                if (Board.Grid[col, i].Color == CellColor.Blank)
                 {
-                    move = ai.SelectMove(Board.Grid);
+                    Board.Grid[col, i].Color = player;
+
+                    break;
                 }
-
-                return Play(move);
             }
-
-            return false;
         }
 
         public bool IsWin(Cell[,] grid, CellColor player, int col)
@@ -460,11 +460,11 @@ namespace BlazorConnect4.Model
             bool win = false;
             int score = 0;
 
-            int row = 6;
+            int row = 5;
 
             while (true)
             {
-                if (grid[col, row-1].Color == CellColor.Blank || !IsValid(grid, col))
+                if (grid[col, row].Color == CellColor.Blank || !IsValid(grid, col))
                 {
                     break;
                 }

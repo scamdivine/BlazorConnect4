@@ -19,7 +19,9 @@ namespace BlazorConnect4
             {
                 Directory.CreateDirectory("./Data");
             }
-            CreateHostBuilder(args).Build().Run();
+            //CreateHostBuilder(args).Build().Run();
+
+            InitiateNavySealTrainingProtocol();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -28,5 +30,33 @@ namespace BlazorConnect4
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+        private static void InitiateNavySealTrainingProtocol()
+        {
+            Console.WriteLine("Started Navy Seal Training Protocol");
+            AIModels.QAgent red;
+            AIModels.QAgent yellow;
+
+            if (File.Exists("Data/Q1Red.bin"))
+            {
+                red = AIModels.QAgent.ConstructFromFile("Data/Q1Red.bin");
+            }
+            else
+            {
+                red = new AIModels.QAgent(Model.CellColor.Red);
+                red.ToFile("Data/Q1Red.bin");
+            }
+            if (File.Exists("Data/Q1Yellow.bin"))
+            {
+                yellow = AIModels.QAgent.ConstructFromFile("Data/Q1Yellow.bin");
+            }
+            else
+            {
+                yellow = new AIModels.QAgent(Model.CellColor.Yellow);
+                yellow.ToFile("Data/Q1Yellow.bin");
+            }
+            red.Trainer(100, yellow);
+            red.ToFile("Data/Q1Red.bin");
+        }
     }
 }

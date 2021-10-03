@@ -178,56 +178,50 @@ namespace BlazorConnect4.AIModels
             return move;
         }
 
-        public void Trainer(int epochs, QAgent opponent)
+        public void Trainer(int epochs, QAgent opponentAI)
         {
             TrainingGameEngine GameEngine = new TrainingGameEngine();
 
-
-            for (int i = 0; i < epochs; i++)
+            for (int i = 0; i < 100; i++)
             {
                 GameEngine.Reset();
                 Cell[,] grid = GameEngine.Board.Grid;
                 CellColor player = GameEngine.Player;
-                CellColor opponentColor = opponent.player;
+                CellColor opponent = opponentAI.player;
                 CellColor thisPlayer = CellColor.Red;
                 int colMove = SelectMove(grid);
-                while (true)
+                int previousMove = colMove;
+                bool gameInProgress = true;
+                Console.WriteLine("Game started");
+                while (gameInProgress)
                 {
-                    if (GameEngine.IsValid(grid, colMove))
+                    if (GameEngine.IsDraw())
+                    {
+                        gameInProgress = false;
+                        Console.WriteLine("IsDraw");
+                    }
+                    else if (GameEngine.IsWin(grid, thisPlayer, colMove))
+                    {
+                        updateMemory(grid, thisPlayer == opponent ? previousMove : colMove, thisPlayer == player ? WinningMove : LosingMove);
+                        gameInProgress = false;
+                        Console.WriteLine("IsWin");
+                    }
+                    else if (!GameEngine.IsValid(grid, colMove))
                     {
                         updateMemory(grid, colMove, InvalidMove);
-                        SelectMove(grid);
-                        break;
+                        colMove = SelectMove(grid);
+                        Console.WriteLine("IsValid");
                     }
-                    else
-                    {
-                        if (GameEngine.IsDraw())
-                        {
-                            break;
-                        }
-                        else if (GameEngine.IsWin(grid, player, colMove))
-                        {
-                            if (thisPlayer == player)
-                            {
-                                updateMemory(grid, colMove, WinningMove);
-                            }
-                            else if (thisPlayer == opponentColor)
-                            {
-                                updateMemory(grid, colMove, LosingMove);
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            thisPlayer = GameEngine.SwapPlayer(thisPlayer);
-                            GameEngine.PlayNext(thisPlayer);
-                        }
+                    else {
+                        GameEngine.Play(colMove, thisPlayer);
+                        thisPlayer = GameEngine.SwapPlayer(thisPlayer);
+                        previousMove = colMove;
+                        colMove = SelectMove(grid);
                     }
-
-
+                    Console.WriteLine("Move: " + colMove + " Runs: " + numberOfRuns);
                 }
-
-                this.numberOfRuns++;
+                Console.WriteLine("Game done");
+                numberOfRuns++;
             }
         }
     }
