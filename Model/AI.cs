@@ -187,38 +187,35 @@ namespace BlazorConnect4.AIModels
                 Cell[,] grid = GameEngine.Board.Grid;
                 CellColor player = GameEngine.Player;
                 CellColor opponent = opponentAI.player;
-                CellColor thisPlayer = CellColor.Red;
-                int colMove = SelectMove(grid);
-                GameEngine.Play(colMove, thisPlayer);
-                int previousMove = colMove;
+                CellColor playerTurn = CellColor.Red;
+
+                int move = 0;
+                int previousMove = move;
                 bool gameInProgress = true;
                 Console.WriteLine("Game started");
+
                 while (gameInProgress)
                 {
-                    if (GameEngine.IsDraw())
+                    if (playerTurn == player)
                     {
-                        gameInProgress = false;
-                        Console.WriteLine("IsDraw");
+                        move = SelectMove(grid);
+                        previousMove = move;
                     }
-                    else if (GameEngine.IsWin(thisPlayer, colMove))
+                    else
                     {
-                        updateMemory(grid, thisPlayer == player ? colMove : previousMove, thisPlayer == player ? WinningMove : LosingMove);
-                        gameInProgress = false;
-                        Console.WriteLine("IsWin");
+                        move = opponentAI.SelectMove(grid);
                     }
-                    else if (!GameEngine.IsValid(grid, colMove))
+                    if (!GameEngine.IsValid(grid, move))
                     {
-                        updateMemory(grid, colMove, InvalidMove);
-                        colMove = SelectMove(grid);
-                        //Console.WriteLine("IsValid");
+                        if (playerTurn == player)
+                        {
+                            updateMemory(grid, move, InvalidMove);
+                        }
+                        continue;
                     }
-                    else {
-                        previousMove = colMove;
-                        colMove = SelectMove(grid);
-                        GameEngine.Play(colMove, thisPlayer);
-                        thisPlayer = GameEngine.SwapPlayer(thisPlayer);
-                    }
-                    //Console.WriteLine("Move: " + colMove + " Runs: " + numberOfRuns);
+
+                    GameEngine.Play(move, playerTurn);
+
                     for (int j = 0; j < 6; j++)
                     {
                         for (int k = 0; k < 7; k++)
@@ -228,6 +225,42 @@ namespace BlazorConnect4.AIModels
                         Console.WriteLine();
                     }
                     Console.WriteLine();
+
+                    if (GameEngine.IsWin(playerTurn, move))
+                    {
+                        updateMemory(grid, playerTurn == player ? move : previousMove, playerTurn == player ? WinningMove : LosingMove);
+                        break;
+                    }
+                    if (GameEngine.IsDraw())
+                    {
+                        break;
+                    }
+
+                    playerTurn = GameEngine.SwapPlayer(playerTurn);
+                    //if (GameEngine.IsDraw())
+                    //{
+                    //    gameInProgress = false;
+                    //    Console.WriteLine("IsDraw");
+                    //}
+                    //else if (GameEngine.IsWin(thisPlayer, colMove))
+                    //{
+                    //    updateMemory(grid, thisPlayer == player ? colMove : previousMove, thisPlayer == player ? WinningMove : LosingMove);
+                    //    gameInProgress = false;
+                    //    Console.WriteLine("IsWin");
+                    //}
+                    //else if (!GameEngine.IsValid(grid, colMove))
+                    //{
+                    //    updateMemory(grid, colMove, InvalidMove);
+                    //    colMove = SelectMove(grid);
+                    //    //Console.WriteLine("IsValid");
+                    //}
+                    //else {
+                    //    thisPlayer = GameEngine.SwapPlayer(thisPlayer);
+                    //    previousMove = colMove;
+                    //    colMove = SelectMove(grid);
+                    //    GameEngine.Play(colMove, thisPlayer);
+                    //}
+                    //Console.WriteLine("Move: " + colMove + " Runs: " + numberOfRuns);
                 }
                 Console.WriteLine("Game done");
                 numberOfRuns++;

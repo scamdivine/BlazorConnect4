@@ -458,94 +458,84 @@ namespace BlazorConnect4.Model
         {
             bool win = false;
             int score = 0;
-
-            int row = 5;
-
-            while (true)
+            for (int row = 5; row >= 0; row--)
             {
-                if (Board.Grid[col, row].Color == CellColor.Blank || !IsValid(Board.Grid, col))
-                {
-                    break;
-                }
-                row -= 1;
-            }
 
-            // Check down
-            if (row < 3)
-            {
-                for (int i = row; i <= row + 3; i++)
+                // Check down
+                if (row < 3)
                 {
-                    if (Board.Grid[col, i].Color == player)
+                    for (int i = row; i <= row + 3; i++)
                     {
-                        score++;
+                        if (Board.Grid[col, i].Color == player)
+                        {
+                            score++;
+                        }
                     }
+                    win = score == 4;
+                    score = 0;
                 }
-                win = score == 4;
-                score = 0;
-            }
 
-            // Check horizontal
+                // Check horizontal
 
-            int left = Math.Max(col - 3, 0);
+                int left = Math.Max(col - 3, 0);
 
-            for (int i = left; i <= col; i++)
-            {
-                for (int j = 0; j < 4; j++)
+                for (int i = left; i <= col; i++)
                 {
-                    if (i + j <= 6 && Board.Grid[i + j, row].Color == player)
+                    for (int j = 0; j < 4; j++)
                     {
-                        score++;
+                        if (i + j <= 6 && Board.Grid[i + j, row].Color == player)
+                        {
+                            score++;
+                        }
                     }
+                    win = win || score == 4;
+                    score = 0;
                 }
-                win = win || score == 4;
-                score = 0;
-            }
 
-            // Check left down diagonal
+                // Check left down diagonal
 
-            int colpos;
-            int rowpos;
+                int colpos;
+                int rowpos;
 
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
+                for (int i = 0; i < 4; i++)
                 {
-                    colpos = col - i + j;
-                    rowpos = row - i + j;
-                    if (0 <= colpos && colpos <= 6 &&
-                        0 <= rowpos && rowpos < 6 &&
-                        Board.Grid[colpos, rowpos].Color == player)
+                    for (int j = 0; j < 4; j++)
                     {
-                        score++;
+                        colpos = col - i + j;
+                        rowpos = row - i + j;
+                        if (0 <= colpos && colpos <= 6 &&
+                            0 <= rowpos && rowpos < 6 &&
+                            Board.Grid[colpos, rowpos].Color == player)
+                        {
+                            score++;
+                        }
                     }
+
+                    win = win || score == 4;
+                    score = 0;
                 }
 
-                win = win || score == 4;
-                score = 0;
-            }
+                // Check left up diagonal
 
-            // Check left up diagonal
-
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
+                for (int i = 0; i < 4; i++)
                 {
-                    colpos = col + i - j;
-                    rowpos = row - i + j;
-                    if (0 <= colpos && colpos <= 6 &&
-                        0 <= rowpos && rowpos < 6 &&
-                        Board.Grid[colpos, rowpos].Color == player)
+                    for (int j = 0; j < 4; j++)
                     {
-                        score++;
+                        colpos = col + i - j;
+                        rowpos = row - i + j;
+                        if (0 <= colpos && colpos <= 6 &&
+                            0 <= rowpos && rowpos < 6 &&
+                            Board.Grid[colpos, rowpos].Color == player)
+                        {
+                            score++;
+                        }
                     }
+
+                    win = win || score == 4;
+                    score = 0;
                 }
-
-                win = win || score == 4;
-                score = 0;
             }
-
             return win;
         }
     }
-
 }
