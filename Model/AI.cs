@@ -71,7 +71,8 @@ namespace BlazorConnect4.AIModels
         float LosingMove = -1.0F;
         float InvalidMove = -0.1F;
         
-        int numberOfRuns = 0;
+        public int numberOfRuns = 0;
+        public int winLossRatio = 0;
 
         Dictionary<String, double[]> memoryDict = new Dictionary<String, double[]>();
 
@@ -150,51 +151,30 @@ namespace BlazorConnect4.AIModels
             memoryDict[gridKey][col] = reward;
         }
 
-        public int getMove(Cell[,] grid, int col)
+        public int GetMemoryValues()
         {
-            Random rand = new Random();
-
-            for(int epoch = 0; epoch < 100; epoch++)
-            {
-                int currentState = rand.Next(7);
-
-                while (true)
-                {
-                    if (GameEngine.IsValid(grid, col))
-                    {
-                        break;
-                    }
-                }
-            }
-            int move = 0;
-            float epsilon = (float)Math.Pow(0.99985, numberOfRuns);
-            int test = numberOfRuns == 1 ? 1 : 0;
-            if (test == 1)
-                move = rand.Next(7);
-            else
-                move = 0;
-
-            return move;
+            return numberOfRuns;
         }
 
-        public void Trainer(int epochs, QAgent opponentAI)
+        public void Trainer(int epochs, AI opponentAI)
         {
             TrainingGameEngine GameEngine = new TrainingGameEngine();
+            int sessionWinLossRatio = 0;
 
             for (int i = 0; i < epochs; i++)
             {
                 GameEngine.Reset();
                 Cell[,] grid = GameEngine.Board.Grid;
                 CellColor player = GameEngine.Player;
-                CellColor opponent = opponentAI.player;
                 CellColor playerTurn = CellColor.Red;
 
                 int move = 0;
                 int previousMove = move;
-                bool gameInProgress = true;
-                Console.WriteLine("Game started");
-
-                while (gameInProgress)
+                Console.WriteLine("Number of runs: " + numberOfRuns);
+                Console.WriteLine("Win loss ratio (Total): " + winLossRatio);
+                Console.WriteLine("Win loss ratio (Training session): " + sessionWinLossRatio);
+                Console.WriteLine("States in memory: " + memoryDict.Count);
+                while (true)
                 {
                     if (playerTurn == player)
                     {
@@ -216,19 +196,11 @@ namespace BlazorConnect4.AIModels
 
                     GameEngine.Play(move, playerTurn);
 
-                    for (int j = 0; j < 6; j++)
-                    {
-                        for (int k = 0; k < 7; k++)
-                        {
-                            Console.Write(grid[k, j].Color + "\t");
-                        }
-                        Console.WriteLine();
-                    }
-                    Console.WriteLine();
-
                     if (GameEngine.IsWin(playerTurn, move))
                     {
                         updateMemory(grid, playerTurn == player ? move : previousMove, playerTurn == player ? WinningMove : LosingMove);
+                        winLossRatio += playerTurn == player ? 1 : -1;
+                        sessionWinLossRatio += playerTurn == player ? 1 : -1;
                         break;
                     }
                     if (GameEngine.IsDraw())
@@ -237,33 +209,9 @@ namespace BlazorConnect4.AIModels
                     }
 
                     playerTurn = GameEngine.SwapPlayer(playerTurn);
-                    //if (GameEngine.IsDraw())
-                    //{
-                    //    gameInProgress = false;
-                    //    Console.WriteLine("IsDraw");
-                    //}
-                    //else if (GameEngine.IsWin(thisPlayer, colMove))
-                    //{
-                    //    updateMemory(grid, thisPlayer == player ? colMove : previousMove, thisPlayer == player ? WinningMove : LosingMove);
-                    //    gameInProgress = false;
-                    //    Console.WriteLine("IsWin");
-                    //}
-                    //else if (!GameEngine.IsValid(grid, colMove))
-                    //{
-                    //    updateMemory(grid, colMove, InvalidMove);
-                    //    colMove = SelectMove(grid);
-                    //    //Console.WriteLine("IsValid");
-                    //}
-                    //else {
-                    //    thisPlayer = GameEngine.SwapPlayer(thisPlayer);
-                    //    previousMove = colMove;
-                    //    colMove = SelectMove(grid);
-                    //    GameEngine.Play(colMove, thisPlayer);
-                    //}
-                    //Console.WriteLine("Move: " + colMove + " Runs: " + numberOfRuns);
                 }
-                Console.WriteLine("Game done");
                 numberOfRuns++;
+                //Console.Clear();
             }
         }
     }

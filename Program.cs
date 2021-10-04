@@ -19,9 +19,9 @@ namespace BlazorConnect4
             {
                 Directory.CreateDirectory("./Data");
             }
-            //CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
 
-            InitiateNavySealTrainingProtocol();
+            //InitiateNavySealTrainingProtocol();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -55,8 +55,20 @@ namespace BlazorConnect4
                 yellow = new AIModels.QAgent(Model.CellColor.Yellow);
                 yellow.ToFile("Data/Q1Yellow.bin");
             }
-            red.Trainer(100, yellow);
-            red.ToFile("Data/Q1Red.bin");
+            AIModels.RandomAI random = new AIModels.RandomAI();
+            for (int i = 0; i < 100; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    red.Trainer(100, random);
+                    red.ToFile("Data/Q1Red.bin");
+                }
+                else
+                {
+                    yellow.Trainer(100, random);
+                    yellow.ToFile("Data/Q1Yellow.bin");
+                }
+            }
         }
     }
 }
