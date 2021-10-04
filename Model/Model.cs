@@ -43,9 +43,9 @@ namespace BlazorConnect4.Model
         public static String GetHashStringCode(Cell[,] grid)
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            for (int col = 0; col < 7; col++)
+            for (int row = 0; row < 6; row++)
             {
-                for (int row = 0; col < 6; row++)
+                for (int col = 0; col < 7; col++)
                 {
                     stringBuilder.Append(grid[col, row].Color);
                 }
@@ -431,7 +431,7 @@ namespace BlazorConnect4.Model
 
         public CellColor SwapPlayer(CellColor player)
         {
-            if (Player == CellColor.Red)
+            if (player == CellColor.Red)
             {
                 return CellColor.Yellow;
             }
@@ -439,7 +439,6 @@ namespace BlazorConnect4.Model
             {
                 return CellColor.Red;
             }
-
         }
 
         public void Play(int col, CellColor player)
@@ -455,7 +454,7 @@ namespace BlazorConnect4.Model
             }
         }
 
-        public bool IsWin(Cell[,] grid, CellColor player, int col)
+        public bool IsWin(CellColor player, int col)
         {
             bool win = false;
             int score = 0;
@@ -464,7 +463,7 @@ namespace BlazorConnect4.Model
 
             while (true)
             {
-                if (grid[col, row].Color == CellColor.Blank || !IsValid(grid, col))
+                if (Board.Grid[col, row].Color == CellColor.Blank || !IsValid(Board.Grid, col))
                 {
                     break;
                 }
@@ -476,7 +475,7 @@ namespace BlazorConnect4.Model
             {
                 for (int i = row; i <= row + 3; i++)
                 {
-                    if (grid[col, i].Color == player)
+                    if (Board.Grid[col, i].Color == player)
                     {
                         score++;
                     }
@@ -493,7 +492,7 @@ namespace BlazorConnect4.Model
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    if (i + j <= 6 && grid[i + j, row].Color == player)
+                    if (i + j <= 6 && Board.Grid[i + j, row].Color == player)
                     {
                         score++;
                     }
@@ -515,7 +514,7 @@ namespace BlazorConnect4.Model
                     rowpos = row - i + j;
                     if (0 <= colpos && colpos <= 6 &&
                         0 <= rowpos && rowpos < 6 &&
-                        grid[colpos, rowpos].Color == player)
+                        Board.Grid[colpos, rowpos].Color == player)
                     {
                         score++;
                     }
@@ -535,7 +534,7 @@ namespace BlazorConnect4.Model
                     rowpos = row - i + j;
                     if (0 <= colpos && colpos <= 6 &&
                         0 <= rowpos && rowpos < 6 &&
-                        grid[colpos, rowpos].Color == player)
+                        Board.Grid[colpos, rowpos].Color == player)
                     {
                         score++;
                     }

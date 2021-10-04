@@ -99,10 +99,9 @@ namespace BlazorConnect4.AIModels
         public int epsilonCalculation(Cell[,] grid, double epsilon)
         {
             Random rand = new Random();
-            int currentState = -1;
             if (rand.NextDouble() < epsilon)
             {
-                currentState = rand.Next(7);
+                int currentState = rand.Next(7);
                 while (!GameEngine.IsValid(grid, currentState))
                 {
                     currentState = rand.Next(7);
@@ -182,7 +181,7 @@ namespace BlazorConnect4.AIModels
         {
             TrainingGameEngine GameEngine = new TrainingGameEngine();
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < epochs; i++)
             {
                 GameEngine.Reset();
                 Cell[,] grid = GameEngine.Board.Grid;
@@ -190,6 +189,7 @@ namespace BlazorConnect4.AIModels
                 CellColor opponent = opponentAI.player;
                 CellColor thisPlayer = CellColor.Red;
                 int colMove = SelectMove(grid);
+                GameEngine.Play(colMove, thisPlayer);
                 int previousMove = colMove;
                 bool gameInProgress = true;
                 Console.WriteLine("Game started");
@@ -200,9 +200,9 @@ namespace BlazorConnect4.AIModels
                         gameInProgress = false;
                         Console.WriteLine("IsDraw");
                     }
-                    else if (GameEngine.IsWin(grid, thisPlayer, colMove))
+                    else if (GameEngine.IsWin(thisPlayer, colMove))
                     {
-                        updateMemory(grid, thisPlayer == opponent ? previousMove : colMove, thisPlayer == player ? WinningMove : LosingMove);
+                        updateMemory(grid, thisPlayer == player ? colMove : previousMove, thisPlayer == player ? WinningMove : LosingMove);
                         gameInProgress = false;
                         Console.WriteLine("IsWin");
                     }
@@ -210,15 +210,24 @@ namespace BlazorConnect4.AIModels
                     {
                         updateMemory(grid, colMove, InvalidMove);
                         colMove = SelectMove(grid);
-                        Console.WriteLine("IsValid");
+                        //Console.WriteLine("IsValid");
                     }
                     else {
-                        GameEngine.Play(colMove, thisPlayer);
-                        thisPlayer = GameEngine.SwapPlayer(thisPlayer);
                         previousMove = colMove;
                         colMove = SelectMove(grid);
+                        GameEngine.Play(colMove, thisPlayer);
+                        thisPlayer = GameEngine.SwapPlayer(thisPlayer);
                     }
-                    Console.WriteLine("Move: " + colMove + " Runs: " + numberOfRuns);
+                    //Console.WriteLine("Move: " + colMove + " Runs: " + numberOfRuns);
+                    for (int j = 0; j < 6; j++)
+                    {
+                        for (int k = 0; k < 7; k++)
+                        {
+                            Console.Write(grid[k, j].Color + "\t");
+                        }
+                        Console.WriteLine();
+                    }
+                    Console.WriteLine();
                 }
                 Console.WriteLine("Game done");
                 numberOfRuns++;
