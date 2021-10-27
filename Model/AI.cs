@@ -91,10 +91,7 @@ namespace BlazorConnect4.AIModels
         public override int SelectMove(Cell[,] grid)
         {
             double epsilon = (float)Math.Pow(0.99985, numberOfRuns);
-
             int move = epsilonCalculation(grid, epsilon);
-
-
             return move;
         }
 
@@ -160,6 +157,8 @@ namespace BlazorConnect4.AIModels
         {
             TrainingGameEngine GameEngine = new TrainingGameEngine();
             int sessionWinLossRatio = 0;
+            double alpha = 0.75;
+            double gamma = 0.5;
 
             for (int i = 0; i < epochs; i++)
             {
@@ -203,6 +202,11 @@ namespace BlazorConnect4.AIModels
                     {
                         break;
                     }
+                    double currentStateAction = findInMemory(grid, move);
+                    int updatedQValue = epsilonCalculation(grid, 5);
+                    double nextStateAction = findInMemory(grid, updatedQValue);
+                    // Q(a,s) <- Q(a,s) + a(reward + gamma * Q(a’,s’) - Q(a,s))
+                    updateMemory(grid, move, currentStateAction + alpha * (0 + gamma * nextStateAction - currentStateAction));
 
                     playerTurn = GameEngine.SwapPlayer(playerTurn);
                 }

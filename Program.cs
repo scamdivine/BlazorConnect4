@@ -19,9 +19,9 @@ namespace BlazorConnect4
             {
                 Directory.CreateDirectory("./Data");
             }
-            //CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
 
-            InitiateNavySealTrainingProtocol();
+            //InitiateNavySealTrainingProtocol();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -56,16 +56,16 @@ namespace BlazorConnect4
                 yellow.ToFile("Data/Q1Yellow.bin");
             }
             AIModels.RandomAI random = new AIModels.RandomAI();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 300; i++)
             {
                 if (i % 2 == 0)
                 {
-                    red.Trainer(100, random);
+                    red.Trainer(100, yellow);
                     red.ToFile("Data/Q1Red.bin");
                 }
                 else
                 {
-                    yellow.Trainer(100, random);
+                    yellow.Trainer(100, red);
                     yellow.ToFile("Data/Q1Yellow.bin");
                 }
             }
