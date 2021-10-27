@@ -19,9 +19,9 @@ namespace BlazorConnect4
             {
                 Directory.CreateDirectory("./Data");
             }
-            CreateHostBuilder(args).Build().Run();
+            //CreateHostBuilder(args).Build().Run();
 
-            //InitiateNavySealTrainingProtocol();
+            InitiateNavySealTrainingProtocol();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

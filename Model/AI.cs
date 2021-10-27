@@ -87,6 +87,7 @@ namespace BlazorConnect4.AIModels
             return temp;
         }
 
+        // Calls functions to select a move
         public override int SelectMove(Cell[,] grid)
         {
             double epsilon = (float)Math.Pow(0.99985, numberOfRuns);
@@ -97,6 +98,7 @@ namespace BlazorConnect4.AIModels
             return move;
         }
 
+        // Calculates what move to make by using the epsilon value
         public int epsilonCalculation(Cell[,] grid, double epsilon)
         {
             Random rand = new Random();
@@ -126,6 +128,7 @@ namespace BlazorConnect4.AIModels
             }
         }
 
+        // Adds the current state if it does not exist in the AIs memory. If it exists it returns a move from the memory
         public double findInMemory(Cell[,] grid, int col)
         {
             String gridKey = GameBoard.GetHashStringCode(grid);
@@ -139,6 +142,7 @@ namespace BlazorConnect4.AIModels
             return memoryDict[gridKey][col];
         }
 
+        // Updates the AIs memory if a move was invalid, made the AI win or made the AI lose with appropriate values
         public void updateMemory(Cell[,] grid, int col, double reward)
         {
             String gridKey = GameBoard.GetHashStringCode(grid);
@@ -151,11 +155,7 @@ namespace BlazorConnect4.AIModels
             memoryDict[gridKey][col] = reward;
         }
 
-        public int GetMemoryValues()
-        {
-            return numberOfRuns;
-        }
-
+        // The trainer for our Q Learning AI
         public void Trainer(int epochs, AI opponentAI)
         {
             TrainingGameEngine GameEngine = new TrainingGameEngine();
@@ -170,10 +170,6 @@ namespace BlazorConnect4.AIModels
 
                 int move = 0;
                 int previousMove = move;
-                Console.WriteLine("Number of runs: " + numberOfRuns);
-                Console.WriteLine("Win loss ratio (Total): " + winLossRatio);
-                Console.WriteLine("Win loss ratio (Training session): " + sessionWinLossRatio);
-                Console.WriteLine("States in memory: " + memoryDict.Count);
                 while (true)
                 {
                     if (playerTurn == player)
@@ -211,7 +207,6 @@ namespace BlazorConnect4.AIModels
                     playerTurn = GameEngine.SwapPlayer(playerTurn);
                 }
                 numberOfRuns++;
-                //Console.Clear();
             }
         }
     }
